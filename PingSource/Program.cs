@@ -67,8 +67,7 @@ namespace PingSource
                 await connection.DisposeAsync();
             }
 
-            Console.WriteLine("Connection closed - press any key");
-            Console.ReadKey();
+            Console.WriteLine("Connection closed");
         }
     }
 }
