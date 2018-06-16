@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PingSource": {
+      "commandName": "Project",
+      "commandLineArgs": "http://localhost:25869/ testApp"
+    }
+  }
+}
