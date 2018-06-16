@@ -9,10 +9,8 @@ namespace PingSource
         static async Task Main(string[] args)
         {
             Console.WriteLine("This is the ping source console app");
-            Console.WriteLine("waiting 3 seconds for server to load");
-
+            Console.WriteLine("(waiting 3 seconds for server to load)");
             await Task.Delay(3000);
-            Console.WriteLine("starting...");
 
             try
             {
@@ -28,6 +26,7 @@ namespace PingSource
 
         private static async Task RunSignalRasync()
         {
+
             const string hubUrl = "http://localhost:25869/TestHub";
             // register the source with the SignalR hub and start sending a ping out
             // at the set interval
@@ -44,9 +43,10 @@ namespace PingSource
             //Start connection
             try
             {
+                Console.WriteLine("Connection starting...");
                 await connection.StartAsync();
                 Console.WriteLine("Connection started");
-                Console.WriteLine("Type a message or hit enter to stop");
+                Console.WriteLine("\nType a message or just a blank line to stop");
                 do
                 {
                     Console.Write("message: ");
