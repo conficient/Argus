@@ -6,9 +6,9 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (true )
 {
-    <p><em>Loading...</em></p>
+    <p><em>removed...</em></p>
 }
 else
 {
@@ -22,7 +22,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @*@foreach (var forecast in forecasts)
             {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
@@ -30,16 +30,16 @@ else
                     <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
                 </tr>
-            }
+            }*@
         </tbody>
     </table>
 }
 
 @functions {
-    WeatherForecast[] forecasts;
+    //WeatherForecast[] forecasts;
 
-    protected override async Task OnInitAsync()
-    {
-        forecasts = await Http.GetJsonAsync<WeatherForecast[]>("api/SampleData/WeatherForecasts");
-    }
+    //protected override async Task OnInitAsync()
+    //{
+    //    forecasts = await Http.GetJsonAsync<WeatherForecast[]>("api/SampleData/WeatherForecasts");
+    //}
 }

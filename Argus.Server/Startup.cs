@@ -7,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 using System.Linq;
 using System.Net.Mime;
 
+
 namespace Argus.Server
 {
     public class Startup
@@ -16,6 +17,7 @@ namespace Argus.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddSignalR();
 
             services.AddResponseCompression(options =>
             {
@@ -25,6 +27,7 @@ namespace Argus.Server
                     WasmMediaTypeNames.Application.Wasm,
                 });
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,10 +40,17 @@ namespace Argus.Server
                 app.UseDeveloperExceptionPage();
             }
 
+            // setup SignalR
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<Hubs.TestHub>("/testhub");
+            });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
             });
+
 
             app.UseBlazor<Client.Program>();
         }
