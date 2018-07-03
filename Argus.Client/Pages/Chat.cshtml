@@ -1,0 +1,70 @@
+﻿@page "/chat"
+@inject HttpClient Http
+
+<h1>Chat</h1>
+
+<p>Server: @url</p>
+<div>@error</div>
+@if (!connected)
+{
+    <label>
+        Please enter your name:
+        <input type="text" min="1" bind="@name" />
+    </label>
+    <span>Name: @name</span>
+    <button class="btn btn-primary" onclick="@StartChat">Chat</button>
+}
+@if (connected)
+{
+    <p>You are now connected to chat!</p>
+    <input type="text" bind=@message />
+    <button>Send</button>
+
+}
+
+@functions {
+    bool connected = false;
+
+    string url;
+    string name;
+    string error;
+
+    Code.ChatClient chatClient;
+
+    string message;
+
+    protected override void OnInit()
+    {
+        // set url
+        url = $"{Http.BaseAddress.Scheme}://{Http.BaseAddress.Authority}";
+    }
+
+    async Task StartChat()
+    {
+        Console.WriteLine("Starting chat..");
+        try
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                chatClient = new Code.ChatClient(url, name);
+                await chatClient.Start();
+                connected = true;
+                StateHasChanged();
+                await chatClient.SendMessage($"{name} has joined the chat");
+            }
+            else
+                error = "No name provided";
+        }
+        catch (Exception e)
+        {
+            error = e.Message + Environment.NewLine + e.StackTrace;
+            Console.WriteLine(e.StackTrace);
+            if(e.InnerException != null)
+            {
+                Console.WriteLine(e.InnerException.Message);
+            }
+        }
+    }
+
+
+}
