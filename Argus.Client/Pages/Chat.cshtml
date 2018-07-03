@@ -4,7 +4,6 @@
 <h1>Chat</h1>
 
 <p>Server: @url</p>
-<div>@error</div>
 @if (!connected)
 {
     <label>
@@ -19,15 +18,22 @@
     <p>You are now connected to chat!</p>
     <input type="text" bind=@message />
     <button>Send</button>
-    
 }
+
+<p>Errors:</p>
+<ul class="list-unstyled">
+    @foreach (var e in errors)
+    {
+        <li>@e</li>
+    }
+</ul>
 
 @functions {
     bool connected = false;
 
     string url;
     string name;
-    string error;
+    List<string> errors = new List<string>();
 
     Code.ChatClient chatClient;
 
@@ -53,17 +59,21 @@
                 await chatClient.SendMessage($"{name} has joined the chat");
             }
             else
-                error = "No name provided";
+                errors.Add("No name provided");
         }
         catch (Exception e)
         {
-            error = e.Message + Environment.NewLine + e.StackTrace;
-            Console.WriteLine(e.StackTrace);
-            if(e.InnerException != null)
-            {
-                Console.WriteLine(e.InnerException.Message);
-            }
+            AddErrors(e);
         }
+    }
+
+    private void AddErrors(Exception e)
+    {
+        errors.Add(e.Message);
+        var lines = e.StackTrace.Split('\n');
+        errors.AddRange(lines);
+        if (e.InnerException != null)
+            AddErrors(e.InnerException);
     }
 
 
