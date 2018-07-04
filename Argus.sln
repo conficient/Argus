@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Argus.Client", "Argus.Clien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Argus.Shared", "Argus.Shared\Argus.Shared.csproj", "{895BEA8F-CF54-4C8A-8459-65340505F627}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingSource", "PingSource\PingSource.csproj", "{C393B8E7-3AEF-4366-9CD9-142D4BF0DA3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PingSource", "PingSource\PingSource.csproj", "{C393B8E7-3AEF-4366-9CD9-142D4BF0DA3E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRinterop", "SignalRinterop\SignalRinterop.csproj", "{5BDE10B7-4BA1-4B51-9C51-5C66419677B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{C393B8E7-3AEF-4366-9CD9-142D4BF0DA3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C393B8E7-3AEF-4366-9CD9-142D4BF0DA3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C393B8E7-3AEF-4366-9CD9-142D4BF0DA3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BDE10B7-4BA1-4B51-9C51-5C66419677B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BDE10B7-4BA1-4B51-9C51-5C66419677B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BDE10B7-4BA1-4B51-9C51-5C66419677B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BDE10B7-4BA1-4B51-9C51-5C66419677B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
