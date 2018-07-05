@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Argus.Shared\Argus.Shared.csproj" />
+    <ProjectReference Include="..\SignalRinterop\SignalRinterop.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,78 +10,83 @@ namespace Argus.Client.Code
     /// </summary>
     public class ChatClientJS : IDisposable
     {
-        public ChatClientJS(string name)
+        public ChatClientJS(string username)
         {
-            _name = name;
+            _username = username;
+            _client = new SignalRinterop.SignalRclient("/testhub");
+            _client.MessageReceived += MessageReceived;
         }
 
-        private readonly string _name;
 
-        public event MessageReceivedEventHandler MessageReceived;
+        private readonly string _username;
+        private readonly SignalRinterop.SignalRclient _client;
 
-        public async Task Start()
+        /// <summary>
+        /// Start the chat client
+        /// </summary>
+        public void Start()
         {
-            //if (_connection != null)
-            //    throw new InvalidOperationException("Connection already started");
-
-            //string hubUrl = $"{_serverUrl}/TestHub";
-            ////// connect to the SignalR hub 
-            ////_connection = new HubConnectionBuilder()
-            ////    .WithUrl(hubUrl)
-            ////    .Build();
-
-            //// handle incoming messages:
-            //_connection.On<string, string>("ReceiveMessage", (user, message) =>
-            //{
-            //    // raise an event to let the owner know
-            //    Console.WriteLine($"[from {user}]: {message}");
-            //    // TODO: raise event
-            //    MessageReceived(this, new MessageReceivedEventArgs(user, message));
-            //});
-
-
-            ////Start connection
-            //try
-            //{
-            //    await _connection.StartAsync();
-            //    Console.WriteLine("Connection started");
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"ERROR: {ex.Message}");
-            //    throw;
-            //}
-            //finally
-            //{
-            //    await _connection.DisposeAsync();
-            //}
+            _client.Start();
         }
 
-        public async Task SendMessage(string message)
+        /// <summary>
+        /// Send a message
+        /// </summary>
+        /// <param name="message"></param>
+        public void SendMessage(string message)
         {
-            //// send a test message
-            //await _connection.InvokeAsync("SendMessage", _name, message);
-
+            _client.Send("SendMessage", _username, message);
         }
 
-        public async Task Stop()
+        /// <summary>
+        /// handle an inbound message
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MessageReceived(object sender, SignalRinterop.MessageReceivedEventArgs e)
         {
-            //await _connection?.StopAsync();
-            //await _connection?.DisposeAsync();
+            if (e.Name == "ReceiveMessage")
+            {
+                var name = (string)e.Data[0];
+                var message = (string)e.Data[1];
+                // raise event 
+                Received?.Invoke(this, new MessageReceivedEventArgs(name, message));
+            }
+            else
+            {
+                // todo: not handled
+            }
         }
 
+        /// <summary>
+        /// Stop the client
+        /// </summary>
+        public void Stop()
+        {
+            _client.Stop();
+        }
+
+        /// <summary>
+        /// Free up resources
+        /// </summary>
         public void Dispose()
         {
-            //Task.Run(async () =>
-            //{
-            //    await Stop();
-            //});
+            _client.Dispose();
         }
+
+        public event MessageReceivedEventHandler Received;
     }
 
+    /// <summary>
+    /// Delegate for the message handler
+    /// </summary>
+    /// <param name="sender">the ChatClientJS instance</param>
+    /// <param name="e">Event args</param>
     public delegate void MessageReceivedEventHandler(object sender, MessageReceivedEventArgs e);
 
+    /// <summary>
+    /// Args when message received
+    /// </summary>
     public class MessageReceivedEventArgs : EventArgs
     {
         public MessageReceivedEventArgs(string name, string message)
@@ -90,7 +95,16 @@ namespace Argus.Client.Code
             Message = message;
         }
 
+        /// <summary>
+        /// Name of the user
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Message body
+        /// </summary>
         public string Message { get; set; }
+
     }
+
 }

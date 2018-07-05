@@ -1,0 +1,96 @@
+﻿@page "/chat"
+
+<SignalRinterop></SignalRinterop>
+
+<h1>Chat</h1>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="alert alert-info">@message</div>
+}
+@if (!started)
+{
+    <p>Enter your name to start chatting:</p>
+    <label>Username: <input bind="@username" /></label>
+    <button onclick="@StartChat">Chat</button>
+}
+@if (started)
+{
+    <label>Enter your message: <input bind="@newMessage" /></label>
+    <button onclick="@SendMessage">Send</button>
+    <button onclick="@Stop">Stop</button>
+    <hr />
+    <ul>
+        @foreach (var msg in messages)
+        {
+            <li>@msg</li>
+        }
+    </ul>
+}
+@functions {
+
+    string username;
+    Argus.Client.Code.ChatClientJS client;
+    bool started = false;
+    string message;
+    string newMessage;
+    List<string> messages = new List<string>();
+
+    void StartChat()
+    {
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            try
+            {
+
+                client = new Argus.Client.Code.ChatClientJS(username);
+                client.Received += MessageReceived;
+                client.Start();
+                message = "Chat started";
+                started = true;
+                messages.Add($"Connected as {username}");
+
+            }
+            catch (Exception e)
+            {
+                message = "ERROR: " + e.Message;
+            }
+        }
+        else
+        {
+            message = "Please enter your name";
+        }
+    }
+
+    /// <summary>
+    /// Inbound message
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    void MessageReceived(object sender, Argus.Client.Code.MessageReceivedEventArgs e)
+    {
+        Console.WriteLine($"Blazor: receive {e.Name}: {e.Message}");
+        messages.Add($"{e.Name}: {e.Message}");
+        StateHasChanged();
+    }
+
+    void SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(newMessage))
+        {
+            Console.WriteLine($"Blazor: send");
+            client.SendMessage(newMessage);
+        }
+    }
+
+    void Stop()
+    {
+        if (started)
+        {
+            Console.WriteLine($"Blazor: stop");
+            client.Stop();
+            client.Dispose();
+            client = null;
+            started = false;
+        }
+    }
+}

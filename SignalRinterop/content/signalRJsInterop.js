@@ -6,8 +6,8 @@ var connections = {};
 
 Blazor.registerFunction('SignalRinterop.SignalR.Start',
     function (key, hubUrl, callbackAssembly, callbackClass, callbackMethod) {
-
         // key is the unique key we use to store/retrieve connections
+        console.log("Connection start");
 
         // set up callback for received messages
         var callback = {
@@ -21,13 +21,14 @@ Blazor.registerFunction('SignalRinterop.SignalR.Start',
             .withUrl(hubUrl)
             .build();
 
-        console.log("Connection looks okay");
-
-        connection.on("ReceiveMessage", data => {
-            console.log("Connection message received");
-            console.log(data);
+        console.log("Connection looks okay, adding receive");
+        
+        // add handler for this
+        connection.on("ReceiveMessage", (...args) => {
+            console.log("Connection message received for " + key);
+            console.log(args);
             // invoke return method
-            Blazor.invokeDotNetMethod(callback, "message name here?", data);
+            Blazor.invokeDotNetMethod(callback, key, "ReceiveMessage", args);
         });
 
         // start the connection
@@ -37,13 +38,16 @@ Blazor.registerFunction('SignalRinterop.SignalR.Start',
     });
 
 
-Blazor.registerFunction('SignalRinterop.SignalR.SendMessage', function (key, name, message) {
-    console.log("Connection send request: " + name);
+Blazor.registerFunction('SignalRinterop.SignalR.Send', function (key, method, ...args) {
+    console.log("Connection send request: " + method);
+    console.log(args);
     var connection = connections[key];
     if (!connection) throw "Connection not found for " + key;
     console.log("Connection located");
     // send message
-    connection.invoke(name, message);
+    connection.invoke(method, args[0], args[1]);
+    // dummy
+    return "ok";
 });
 
 Blazor.registerFunction('SignalRinterop.SignalR.Stop', function (key) {
@@ -57,7 +61,6 @@ Blazor.registerFunction('SignalRinterop.SignalR.Stop', function (key) {
         connection = null;
     }
     else
-        alert("Connection not found for " + key);
+        console.log("Connection not found for " + key);
 });
 
-//Blazor.registerFunction('');

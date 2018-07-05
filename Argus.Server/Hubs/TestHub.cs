@@ -12,6 +12,20 @@ namespace Argus.Server.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
+
+        public override Task OnConnectedAsync()
+        {
+            Console.WriteLine("Connected");
+            return base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception e)
+        {
+            Console.WriteLine($"Disconnected {e?.Message}");
+            return base.OnDisconnectedAsync(e);
+        }
+
+
     }
 }
 

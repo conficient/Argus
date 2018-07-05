@@ -27,15 +27,16 @@ namespace SignalRinterop
         /// </summary>
         /// <param name="key"></param>
         /// <param name="message">*might need to be a params here?*</param>
-        public static void ReceiveMessage(string key, string name, object message)
+        public static void ReceiveMessage(string key, string method, object[] data)
         {
             if (_clients.ContainsKey(key))
             {
                 var client = _clients[key];
-                client.HandleMessage(name, message);
+                client.HandleMessage(method, data);
             } else
             {
                 // unable to match the message to a client
+                Console.WriteLine($"ReceiveMessage: unable to find {key}");
             }
         }
 
@@ -50,7 +51,7 @@ namespace SignalRinterop
             // save the hub url
             _hubUrl = hubUrl ?? throw new ArgumentNullException(nameof(hubUrl));
             // create a unique key for this client
-            _key = new Guid().ToString();
+            _key = Guid.NewGuid().ToString();
             // add myself to the list of clients
             _clients.Add(_key, this);
         }
@@ -95,12 +96,12 @@ namespace SignalRinterop
         /// <summary>
         /// Handle an inbound message from a hub
         /// </summary>
-        /// <param name="name">event name</param>
+        /// <param name="method">event name</param>
         /// <param name="message">message content</param>
-        private void HandleMessage(string name, object message)
+        private void HandleMessage(string method, object[] data)
         {
             // raise an event to subscribers
-            MessageReceived?.Invoke(this, new MessageReceivedEventArgs(name, message));
+            MessageReceived?.Invoke(this, new MessageReceivedEventArgs(method, data));
         }
 
         /// <summary>
@@ -116,13 +117,13 @@ namespace SignalRinterop
         /// </summary>
         /// <param name="name">Method to call on the hub</param>
         /// <param name="message">[optional] message body</param>
-        public void SendMessage(string name, object message = null)
+        public void Send(string name, object p1, object p2)
         {
             // check we are connected
             if (!_started)
                 throw new InvalidOperationException("Client not started");
             // send the message
-            var tmp = RegisteredFunction.Invoke<bool>("SignalRinterop.SignalR.SendMessage", _key, name, message);
+            var tmp = RegisteredFunction.Invoke<string>("SignalRinterop.SignalR.Send", _key, name, p1,p2);
         }
 
         /// <summary>
@@ -164,10 +165,10 @@ namespace SignalRinterop
     /// </summary>
     public class MessageReceivedEventArgs : EventArgs
     {
-        public MessageReceivedEventArgs(string name, object message)
+        public MessageReceivedEventArgs(string name, object[] data)
         {
             Name = name;
-            Message = message;
+            Data = data;
         }
 
         /// <summary>
@@ -176,9 +177,9 @@ namespace SignalRinterop
         public string Name { get; set; }
 
         /// <summary>
-        /// Message body
+        /// Message data items
         /// </summary>
-        public object Message { get; set; }
+        public object[] Data { get; set; }
 
     }
 
