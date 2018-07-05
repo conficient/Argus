@@ -1,56 +1,63 @@
 ﻿// This file is to show how a library package may provide JavaScript interop features
 // wrapped in a .NET API
 
-// import * as SignalR from 'signalr'; // we will use static loading?
+// store connections in object
+var connections = {};
 
-// store connection 
-var connection;
+Blazor.registerFunction('SignalRinterop.SignalR.Start',
+    function (key, hubUrl, callbackAssembly, callbackClass, callbackMethod) {
 
-Blazor.registerFunction('SignalRinterop.SignalR.Start', function (callbackAssembly, callbackClass, callbackMethod) {
+        // key is the unique key we use to store/retrieve connections
 
-    // set up callback for received messages
-    var callback = {
-        type: { assembly: callbackAssembly, name: callbackClass },
-        method: { name: callbackMethod }
-    };
+        // set up callback for received messages
+        var callback = {
+            type: { assembly: callbackAssembly, name: callbackClass },
+            method: { name: callbackMethod }
+        };
 
-    // create a client
-    console.log("Connection being started");
-    connection = new signalR.HubConnectionBuilder()
-        .withUrl("/testhub")
-        .build();
-    console.log("Connection looks okay");
+        // create a client
+        console.log("Connection being started for " + hubUrl);
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl)
+            .build();
 
-    connection.on("ReceiveMessage", data => {
-        console.log("Connection message received");
-        console.log(data);
-        // invoke return method
-        Blazor.invokeDotNetMethod(callback, "user", data);
+        console.log("Connection looks okay");
+
+        connection.on("ReceiveMessage", data => {
+            console.log("Connection message received");
+            console.log(data);
+            // invoke return method
+            Blazor.invokeDotNetMethod(callback, "message name here?", data);
+        });
+
+        // start the connection
+        connection.start();
+        // store connection in our lookup object
+        connections[key] = connection;
     });
 
-    connection.start()
-        .then(() => connection.invoke("send", "Hello"));
 
+Blazor.registerFunction('SignalRinterop.SignalR.SendMessage', function (key, name, message) {
+    console.log("Connection send request: " + name);
+    var connection = connections[key];
+    if (!connection) throw "Connection not found for " + key;
+    console.log("Connection located");
+    // send message
+    connection.invoke(name, message);
 });
 
-
-Blazor.registerFunction('SignalRinterop.SignalR.SendMessage', function (user, message) {
-    console.log("Connection send request");
-    if (connection)
-        connection.invoke("SendMessage", user, message);
-    else
-        alert("Connection is not started");
-});
-
-Blazor.registerFunction('SignalRinterop.SignalR.Stop', function () {
-        console.log("Connection stop request");
+Blazor.registerFunction('SignalRinterop.SignalR.Stop', function (key) {
+    console.log("Connection stop request: " + key);
+    var connection = connections[key];
     if (connection) {
-        console.log("Connection stopped");
         connection.stop();
+        console.log("Connection stopped");
+        // remove refs
+        delete connections[key];
         connection = null;
     }
     else
-        alert("Connection is not started");
+        alert("Connection not found for " + key);
 });
 
 //Blazor.registerFunction('');
